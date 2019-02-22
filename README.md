@@ -1,4 +1,4 @@
-#Simple Chat Application using Flask-Socketio, jquery, flask, and Socket.js
+# Simple Chat Application using Flask-Socketio, jquery, flask, and Socket.js
 
 * This is a simple implementation of flask-socketio
 
