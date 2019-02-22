@@ -1,6 +1,7 @@
 {% extends 'layout.html' %}
+{% block login %}login{% endblock %}
 {% block content %}
-	<div class="container" style="margin-top: 10em; ">
+	<div class="container" style="margin-top: 5em; ">
 		<h3>Login</h3>
 		<form action="{{ url_for('login') }}" method="POST">
 			<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>

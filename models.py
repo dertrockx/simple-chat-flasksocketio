@@ -17,6 +17,11 @@ class Users(db.Model):
 		self.password = hasher.hexdigest()
 		return self.password
 
+	def check_password(self, password):
+		hasher = hashlib.sha256()
+		hasher.update(str(password))
+		return hasher.hexdigest() == self.password
+
 class Messages(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 	message = db.Column(db.Text, nullable=False)

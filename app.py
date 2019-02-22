@@ -97,7 +97,18 @@ def signup():
 def login():
 	form = LoginForm(request.form)
 	if request.method == 'POST':
-		pass
+		username = request.form['username']
+		password = request.form['password']
+		user = User.query.filter_by(username=username).first()
+		if user:
+			if user.check_password(password):
+				session['logged_in'] = True
+				flash("Log in successful", "success")
+				return redirect(url_for('chat_room'))
+			flash("Passwords do not match!", "error")
+			return redirect(url_for('login'))
+		flash("Username not found, consider registering?", "error")
+		return redirect(url_for('login'))
 	return render_template('login.html')
 @app.route('/chat_room/')
 @is_logged_in
@@ -108,6 +119,7 @@ def chat_room():
 @is_logged_in
 def logout():
 	session.pop('logged_in')
+	flash("Thank you for your time!", "success")
 	return redirect(url_for('login'))
 
 # SocketIO channels
@@ -124,7 +136,7 @@ def on_user_disconnect():
 @socketio.on("list_all_users")
 def list_all_users():
 	users = [user.username for user in User.query.all()]
-	socketio.emit('return_all_users', json.dumps(users))
+	socketio.emit('return_all_users', users)
 
 if __name__ == '__main__':
 	#socketio.run(app, debug=True)

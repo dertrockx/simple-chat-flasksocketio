@@ -5,17 +5,20 @@
 	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
-	{% with messages = get_flashed_messages(with_categories=True) %}
-		{% if messages %}
-			{% for category, message in messages %}
-			<div class="alert alert-{%if category == 'success'%}success{%elif category == 'error'%}danger{% else %}warning{% endif%}">
-				<p style="text-align: center">{{ message }}</p>
-			</div>
-			{% endfor %}
-		{% endif %}
-	{% endwith %}
-	{% block content %}
-	{% endblock content %}
+	{% include 'includes/navbar.html' %}
+	<div class="contents" style="padding-top: 4em;">
+		{% with messages = get_flashed_messages(with_categories=True) %}
+			{% if messages %}
+				{% for category, message in messages %}
+				<div class="alert alert-{%if category == 'success'%}success{%elif category == 'error'%}danger{% else %}warning{% endif%}" style="z-index: 9999;">
+					<p style="text-align: center">{{ message }}</p>
+				</div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+		{% block content %}
+		{% endblock content %}
+	</div>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
