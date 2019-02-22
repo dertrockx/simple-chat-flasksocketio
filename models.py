@@ -42,4 +42,11 @@ class SessionIDs(db.Model):
 
 	def __repr__(self):
 		return "<User {}'s session ID: {}".format(self.user_id, self.sid)
-		
+
+class ActiveAccounts(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	session_id = db.Column(db.String(32), nullable=True)
+	user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+
+	def __repr__(self):
+		return "<Active: {}>".format(self.user_id)

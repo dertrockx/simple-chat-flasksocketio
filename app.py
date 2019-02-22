@@ -3,7 +3,7 @@ from flask_socketio import SocketIO
 
 from flask_wtf import CSRFProtect
 from forms import SignupForm, LoginForm
-from models import Users as User, Messages as Message, SessionIDs as SessionID, db
+from models import Users as User, Messages as Message, SessionIDs as SessionID, db, ActiveAccounts
 
 
 import os, json
@@ -67,6 +67,8 @@ def signupSuccess():
 '''
 #@socketio.on('signup')
 
+def defaultCallback(message):
+	print(message)
 
 
 @app.route('/signup/', methods=['GET', 'POST'])
@@ -103,6 +105,7 @@ def login():
 		if user:
 			if user.check_password(password):
 				session['logged_in'] = True
+				session['user_id'] = user.id
 				flash("Log in successful", "success")
 				return redirect(url_for('chat_room'))
 			flash("Passwords do not match!", "error")
@@ -118,7 +121,12 @@ def chat_room():
 @app.route('/logout/')
 @is_logged_in
 def logout():
+	user_id = session['user_id']
 	session.pop('logged_in')
+	session.pop('user_id')
+	ses = ActiveAccounts.query.filter_by(user_id=user_id).first()
+	db.session.delete(ses)
+	db.session.commit()
 	flash("Thank you for your time!", "success")
 	return redirect(url_for('login'))
 
@@ -126,12 +134,35 @@ def logout():
 @socketio.on('connect')
 def on_user_connect():
 	print("connected!")
-	print(request.sid)
+	session_id = request.sid
+	user_id = session.get('user_id', None)
+	user = User.query.filter_by(id=user_id).first()
+	if user is not None:
+		ses = ActiveAccounts.query.filter_by(user_id=user_id).first()
+		
+		if ses:
+			db.session.delete(ses)
+			db.session.commit()
+		new_ses = ActiveAccounts(user_id = user_id, session_id = session_id)
+		
+		db.session.add(new_ses)
+		db.session.commit()
+		flash("Connection Established!", "success")
+		return
+	message = "Connection to server error"
+	socketio.emit("error", message, callback=defaultCallback(message))
+	return
 
 @socketio.on('disconnect')
 def on_user_disconnect():
 	print("Disconnect")
-	print(request.sid)
+	session_id = request.sid
+	ses = ActiveAccounts.query.filter_by(session_id=session_id).first()
+	if ses:
+		db.session.delete(ses)
+		db.session.commmit()
+		print("Successfully removed session data in database")
+
 
 @socketio.on("list_all_users")
 def list_all_users():
