@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+{% block script %}
+<script type="text/javascript">
+	var socket = io.connect('http://127.0.0.1:5000');
+	socket.emit("list_all_users");
+	socket.on('return_all_users', function(users) {
+		console.log(users);
+	})
+</script>
+{% endblock script %}
